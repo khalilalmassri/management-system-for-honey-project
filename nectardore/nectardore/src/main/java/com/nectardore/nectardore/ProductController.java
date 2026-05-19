@@ -25,4 +25,25 @@ public class ProductController{
     public Product createProduct(@RequestBody Product product) {
         return productRepository.save(product);
     }
+        @DeleteMapping("/{id}")
+    public void deleteProductById(@PathVariable Long id){
+        productRepository.deleteById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Product updateProduct(@PathVariable Long id,@RequestBody Product updatedProduct){
+        Optional<Product> found = productRepository.findById(id);
+        if(found.isPresent()){
+            Product existing = found.get();
+            existing.setName(updatedProduct.getName());
+            existing.setCost(updatedProduct.getCost());
+            existing.setSize(updatedProduct.getSize());
+            existing.setStock(updatedProduct.getStock());
+            existing.setSellingPrice(updatedProduct.getSellingPrice());
+            productRepository.save(existing);
+            return existing;
+        } else {
+            throw new RuntimeException("product with id not found");
+        }
+    }
 }
