@@ -14,14 +14,36 @@ public class SaleController{
 
     private final SaleRepository saleRepository;
 
-    public SaleController(SaleRepository saleRepository){ this.saleRepository=saleRepository;    }
+    private final ProductRepository productRepository;
+
+    public SaleController(SaleRepository saleRepository, ProductRepository productRepository){
+        this.saleRepository=saleRepository;
+        this.productRepository=productRepository;
+    }
 
     @GetMapping
     public List<Sale> getAllSales(){ return saleRepository.findAll();}
 
     @PostMapping
-    public Sale createNewSale(@RequestBody Sale sale){
-        return saleRepository.save(sale);
+    public Sale createNewSale(@RequestBody Sale sale)
+    {
+        Long idToFind= sale.getProductId();
+        Optional<Product> findProduct=productRepository.findById(idToFind);
+        if(findProduct.isPresent()){
+            Product checkProduct= findProduct.get();
+            if(checkProduct.getStock()>=sale.getQuantitySold()){
+                checkProduct.setStock(checkProduct.getStock()-sale.getQuantitySold());
+                productRepository.save(checkProduct);
+                sale.setTotalPrice(sale.getQuantitySold()*checkProduct.getSellingPrice());
+                return saleRepository.save(sale) ;
+            }else{
+                throw new RuntimeException("Not enough stock available");
+            }
+
+        }else{
+            throw new RuntimeException("Product not found");
+        }
+
     }
 
     @DeleteMapping("/{id}")
