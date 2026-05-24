@@ -16,34 +16,21 @@ public class SaleController{
 
     private final ProductRepository productRepository;
 
-    public SaleController(SaleRepository saleRepository, ProductRepository productRepository){
+    private final SaleService saleService;
+
+    public SaleController(SaleRepository saleRepository, ProductRepository productRepository, SaleService saleService){
         this.saleRepository=saleRepository;
         this.productRepository=productRepository;
+        this.saleService=saleService;
     }
+
 
     @GetMapping
     public List<Sale> getAllSales(){ return saleRepository.findAll();}
 
     @PostMapping
     public Sale createNewSale(@RequestBody Sale sale)
-    {
-        Long idToFind= sale.getProductId();
-        Optional<Product> findProduct=productRepository.findById(idToFind);
-        if(findProduct.isPresent()){
-            Product checkProduct= findProduct.get();
-            if(checkProduct.getStock()>=sale.getQuantitySold()){
-                checkProduct.setStock(checkProduct.getStock()-sale.getQuantitySold());
-                productRepository.save(checkProduct);
-                sale.setTotalPrice(sale.getQuantitySold()*checkProduct.getSellingPrice());
-                return saleRepository.save(sale) ;
-            }else{
-                throw new RuntimeException("Not enough stock available");
-            }
-
-        }else{
-            throw new RuntimeException("Product not found");
-        }
-
+    {return saleService.newSale(sale);
     }
 
     @DeleteMapping("/{id}")
@@ -51,40 +38,18 @@ public class SaleController{
 
     @PutMapping("/{id}")
     public Sale updateSale(@PathVariable Long id, @RequestBody Sale sale){
-    Optional<Sale> found = saleRepository.findById(id);
-    if(found.isPresent()){
-        Sale existing =found.get();
-    existing.setQuantitySold(sale.getQuantitySold());
-    existing.setTotalPrice(sale.getTotalPrice());
-    saleRepository.save(existing);
-        return existing;
+    return saleService.updateOneSale(id,sale);
     }
-    else {
-        throw new RuntimeException("sale with this id not found!");
-    }
-    }
-        @GetMapping("/total-revenue")
+
+    @GetMapping("/total-revenue")
     public double getTotalRevenue(){
-        List<Sale> totalSale =getAllSales();
-        double totalRevenue=0;
-        for(int i=0;i<totalSale.size();i++){
-                totalRevenue+=totalSale.get(i).getTotalPrice();
-        }
-        return totalRevenue;
+        return saleService.totalRevenue();
     }
 
 
     @GetMapping("/total-profit")
     public double getTotalProfit(){
-        List<Sale> totalSale =getAllSales();
-        double totalProfit=0;
-        for(int i=0;i<totalSale.size();i++){
-            Optional<Product> findProduct=productRepository.findById(totalSale.get(i).getProductId());
-            if(findProduct.isPresent()){
-                totalProfit+=(totalSale.get(i).getTotalPrice())-(findProduct.get().getCost() * totalSale.get(i).getQuantitySold());
-            }
-        }
-        return totalProfit;
+        return saleService.totalProfit();
     }
 
 }
