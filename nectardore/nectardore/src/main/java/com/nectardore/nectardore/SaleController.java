@@ -63,5 +63,28 @@ public class SaleController{
         throw new RuntimeException("sale with this id not found!");
     }
     }
+        @GetMapping("/total-revenue")
+    public double getTotalRevenue(){
+        List<Sale> totalSale =getAllSales();
+        double totalRevenue=0;
+        for(int i=0;i<totalSale.size();i++){
+                totalRevenue+=totalSale.get(i).getTotalPrice();
+        }
+        return totalRevenue;
+    }
+
+
+    @GetMapping("/total-profit")
+    public double getTotalProfit(){
+        List<Sale> totalSale =getAllSales();
+        double totalProfit=0;
+        for(int i=0;i<totalSale.size();i++){
+            Optional<Product> findProduct=productRepository.findById(totalSale.get(i).getProductId());
+            if(findProduct.isPresent()){
+                totalProfit+=(totalSale.get(i).getTotalPrice())-(findProduct.get().getCost() * totalSale.get(i).getQuantitySold());
+            }
+        }
+        return totalProfit;
+    }
 
 }
