@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/sales")
@@ -51,5 +51,9 @@ public class SaleController{
     public double getTotalProfit(){
         return saleService.totalProfit();
     }
-
+    
+    @GetMapping("/date")
+    public List<Sale> saleByDate(@RequestParam LocalDate date){
+        return saleService.saleByDate(date);
+    }
 }
