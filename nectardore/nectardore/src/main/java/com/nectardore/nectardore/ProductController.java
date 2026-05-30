@@ -12,9 +12,10 @@ import java.util.List;
 public class ProductController{
 
     private final ProductRepository productRepository;
-
-    public ProductController(ProductRepository productRepository) {
+    private final ProductService productService;
+    public ProductController(ProductRepository productRepository, ProductService productService) {
         this.productRepository = productRepository;
+        this.productService = productService;
     }
 
     @GetMapping
@@ -46,4 +47,12 @@ public class ProductController{
             throw new RuntimeException("product with id not found");
         }
     }
+        @GetMapping("/low-stock")
+    public List<Product> lowStockProduct(){
+        return productService.lowStockProduct();
+    }
+    @GetMapping("/search")
+        public List<Product> searchProductByName(@RequestParam String name){
+            return productService.searchProductByName(name);
+        }
 }
