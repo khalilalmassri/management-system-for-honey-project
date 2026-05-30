@@ -70,5 +70,16 @@ public class SaleService{
         }
         return totalProfit;
     }
-
+    public List<Sale> saleByDate(LocalDate date){
+        List <Sale> allSale=saleRepository.findAll();
+        List <Sale> dateSale=new ArrayList<>();
+        for(int i=0;i<allSale.size();i++){
+           if (allSale.get(i).getSaleDate().toLocalDate().equals(date))
+               dateSale.add(allSale.get(i));
+        }
+        if(!dateSale.isEmpty())
+            return dateSale;
+        else
+            throw new RuntimeException("no sale is found in this date");
+    }
 }
