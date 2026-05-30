@@ -33,4 +33,8 @@ public class ExpenseController{
     public double getTotalExpenses(){
         return expenseService.totalExpense();
     }
+        @GetMapping("/category")
+    public List<Expense> expenseByCategory(@RequestParam String category){
+        return expenseService.expenseByCategory(category);
+    }
 }
