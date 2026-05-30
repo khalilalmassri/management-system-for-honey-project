@@ -71,4 +71,16 @@ public class SaleService{
         return totalProfit;
     }
 
+        public List<Expense> expenseByCategory(String category){
+        List <Expense> allExpense=expenseRepository.findAll();
+        List <Expense> categoryExpense=new ArrayList<>();
+        for(int i=0;i<allExpense.size();i++) {
+        if (allExpense.get(i).getCategory().toLowerCase().equals(category.toLowerCase()))
+            categoryExpense.add(allExpense.get(i));
+        }
+        if(!categoryExpense.isEmpty())
+            return categoryExpense;
+        else
+            throw new RuntimeException("no expense is found in this category");
+    }
 }
